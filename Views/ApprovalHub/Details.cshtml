@@ -1,0 +1,205 @@
+@model ApprovalHub
+
+@{
+    ViewData["Title"] = $"Detalhes - Pedido #{Model.IdApprovalHub}";
+}
+
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="bi bi-file-text"></i> Detalhes do Pedido #@Model.IdApprovalHub</h1>
+    </div>
+    <div class="col-auto">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+        <a asp-action="Edit" asp-route-id="@Model.IdApprovalHub" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Editar
+        </a>
+    </div>
+</div>
+
+<!-- Main Info -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Informação Principal</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-sm-4">Tipo de Fatura:</dt>
+                    <dd class="col-sm-8">@Model.TipoFatura</dd>
+
+                    <dt class="col-sm-4">Nº Fatura:</dt>
+                    <dd class="col-sm-8">@Model.NumFatura</dd>
+
+                    <dt class="col-sm-4">Data Documento:</dt>
+                    <dd class="col-sm-8">@Model.DataDocumento?.ToString("dd/MM/yyyy")</dd>
+
+                    <dt class="col-sm-4">Documento a Criar:</dt>
+                    <dd class="col-sm-8">@Model.DocumentoACriar</dd>
+
+                    <dt class="col-sm-4">Fornecedor BC ID:</dt>
+                    <dd class="col-sm-8">@Model.FornecedorBcId</dd>
+
+                    <dt class="col-sm-4">Fornecedor:</dt>
+                    <dd class="col-sm-8">@Model.FornecedorNome</dd>
+                </dl>
+            </div>
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-sm-4">Comprador:</dt>
+                    <dd class="col-sm-8">@Model.Comprador</dd>
+
+                    <dt class="col-sm-4">Aprovador:</dt>
+                    <dd class="col-sm-8">@Model.Aprovador</dd>
+
+                    <dt class="col-sm-4">Local Livre:</dt>
+                    <dd class="col-sm-8">@Model.LocalLivre</dd>
+
+                    <dt class="col-sm-4">Empresa:</dt>
+                    <dd class="col-sm-8">@Model.EmpresaNome</dd>
+
+                    <dt class="col-sm-4">Valor Total:</dt>
+                    <dd class="col-sm-8"><strong class="text-success">@Model.ValorTotal.ToString("C2")</strong></dd>
+
+                    <dt class="col-sm-4">Estado:</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @GetEstadoBadgeClass(Model.Estado)">@Model.Estado</span>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Observacoes))
+        {
+            <div class="row mt-3">
+                <div class="col">
+                    <strong>Observações:</strong>
+                    <p class="border p-3 bg-light">@Model.Observacoes</p>
+                </div>
+            </div>
+        }
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <small class="text-muted">
+                    <i class="bi bi-person"></i> Criado por: <strong>@Model.CriadoPor</strong><br>
+                    <i class="bi bi-calendar"></i> Criado em: <strong>@Model.CriadoEm?.ToString("dd/MM/yyyy HH:mm")</strong>
+                </small>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <small class="text-muted">
+                    <i class="bi bi-calendar-check"></i> Atualizado em: <strong>@Model.AtualizadoEm?.ToString("dd/MM/yyyy HH:mm")</strong>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dimensões -->
+<div class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="bi bi-diagram-3"></i> Dimensões</h5>
+    </div>
+    <div class="card-body">
+        @if (Model.Dimensoes != null && Model.Dimensoes.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Linha</th>
+                            <th>Tipo</th>
+                            <th>Código</th>
+                            <th>Nome</th>
+                            <th class="text-end">Percentagem</th>
+                            <th class="text-end">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var dimensao in Model.Dimensoes.OrderBy(d => d.Linha))
+                        {
+                            <tr>
+                                <td>@dimensao.Linha</td>
+                                <td><span class="badge bg-secondary">@dimensao.Tipo</span></td>
+                                <td>@dimensao.CodDimensao</td>
+                                <td>@dimensao.NomeDimensao</td>
+                                <td class="text-end">@dimensao.Percentagem?.ToString("N2")%</td>
+                                <td class="text-end">@dimensao.Valor?.ToString("C2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mb-0"><i class="bi bi-info-circle"></i> Nenhuma dimensão associada.</p>
+        }
+    </div>
+</div>
+
+<!-- Anexos -->
+<div class="card mb-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-paperclip"></i> Anexos</h5>
+    </div>
+    <div class="card-body">
+        @if (Model.Anexos != null && Model.Anexos.Any())
+        {
+            <div class="list-group">
+                @foreach (var anexo in Model.Anexos)
+                {
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-file-earmark"></i>
+                            <strong>@anexo.NomeFicheiro</strong>
+                            <br>
+                            <small class="text-muted">
+                                @anexo.ContentType | @FormatFileSize(anexo.TamanhoBytes)
+                                | Carregado por @anexo.CarregadoPor em @anexo.CarregadoEm?.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                        </div>
+                        <div>
+                            <a asp-action="DownloadAnexo" asp-route-id="@anexo.IdAnexo" class="btn btn-sm btn-primary">
+                                <i class="bi bi-download"></i> Download
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mb-0"><i class="bi bi-info-circle"></i> Nenhum anexo carregado.</p>
+        }
+    </div>
+</div>
+
+@functions {
+    string GetEstadoBadgeClass(string? estado)
+    {
+        return estado switch
+        {
+            "Pendente" => "bg-warning text-dark",
+            "Aprovado" => "bg-success",
+            "Rejeitado" => "bg-danger",
+            "Em Análise" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+
+    string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        double len = bytes;
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
+    }
+}

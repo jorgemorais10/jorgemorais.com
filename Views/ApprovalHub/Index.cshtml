@@ -1,0 +1,148 @@
+@model List<ApprovalHub>
+
+@{
+    ViewData["Title"] = "Pedidos de Aprovação";
+}
+
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="bi bi-clipboard-check"></i> Pedidos de Aprovação</h1>
+    </div>
+    <div class="col-auto">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Novo Pedido
+        </a>
+    </div>
+</div>
+
+<!-- Search Form -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">
+            <i class="bi bi-search"></i> Pesquisar
+        </h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Search" method="get">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Fornecedor</label>
+                    <input type="text" class="form-control" name="fornecedor" value="@ViewBag.Fornecedor" placeholder="Nome do fornecedor">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Estado</label>
+                    <select class="form-select" name="estado">
+                        <option value="">Todos</option>
+                        <option value="Pendente">Pendente</option>
+                        <option value="Aprovado">Aprovado</option>
+                        <option value="Rejeitado">Rejeitado</option>
+                        <option value="Em Análise">Em Análise</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Data Início</label>
+                    <input type="date" class="form-control" name="dataInicio" value="@ViewBag.DataInicio">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Data Fim</label>
+                    <input type="date" class="form-control" name="dataFim" value="@ViewBag.DataFim">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <div class="d-grid gap-2 d-md-block">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Pesquisar
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Limpar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results Table -->
+<div class="card">
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nº Fatura</th>
+                            <th>Fornecedor</th>
+                            <th>Data Documento</th>
+                            <th>Valor Total</th>
+                            <th>Estado</th>
+                            <th>Criado Por</th>
+                            <th>Criado Em</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.IdApprovalHub</td>
+                                <td>@item.NumFatura</td>
+                                <td>@item.FornecedorNome</td>
+                                <td>@item.DataDocumento?.ToString("dd/MM/yyyy")</td>
+                                <td class="text-end">@item.ValorTotal.ToString("C2")</td>
+                                <td>
+                                    <span class="badge @GetEstadoBadgeClass(item.Estado)">
+                                        @item.Estado
+                                    </span>
+                                </td>
+                                <td>@item.CriadoPor</td>
+                                <td>@item.CriadoEm?.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.IdApprovalHub"
+                                           class="btn btn-info" title="Ver Detalhes">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.IdApprovalHub"
+                                           class="btn btn-warning" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.IdApprovalHub"
+                                           class="btn btn-danger" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-3">
+                <p class="text-muted">Total de registos: <strong>@Model.Count</strong></p>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> Nenhum pedido de aprovação encontrado.
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    string GetEstadoBadgeClass(string? estado)
+    {
+        return estado switch
+        {
+            "Pendente" => "bg-warning text-dark",
+            "Aprovado" => "bg-success",
+            "Rejeitado" => "bg-danger",
+            "Em Análise" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+}

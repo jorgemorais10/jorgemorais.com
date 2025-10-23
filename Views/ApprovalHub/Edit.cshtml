@@ -1,0 +1,255 @@
+@model ApprovalHub
+
+@{
+    ViewData["Title"] = $"Editar Pedido #{Model.IdApprovalHub}";
+}
+
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="bi bi-pencil"></i> Editar Pedido #@Model.IdApprovalHub</h1>
+    </div>
+    <div class="col-auto">
+        <a asp-action="Details" asp-route-id="@Model.IdApprovalHub" class="btn btn-info">
+            <i class="bi bi-eye"></i> Ver Detalhes
+        </a>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data" id="approvalForm">
+    <input type="hidden" asp-for="IdApprovalHub" />
+    <input type="hidden" asp-for="CriadoPor" />
+    <input type="hidden" asp-for="CriadoEm" />
+
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <!-- Main Information Card -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-info-circle"></i> Informação Principal</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="TipoFatura" class="form-label"></label>
+                    <select asp-for="TipoFatura" class="form-select">
+                        <option value="">Selecione...</option>
+                        <option value="Fatura">Fatura</option>
+                        <option value="Nota de Crédito">Nota de Crédito</option>
+                        <option value="Nota de Débito">Nota de Débito</option>
+                        <option value="Recibo">Recibo</option>
+                    </select>
+                    <span asp-validation-for="TipoFatura" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="NumFatura" class="form-label"></label>
+                    <input asp-for="NumFatura" class="form-control" />
+                    <span asp-validation-for="NumFatura" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="DataDocumento" class="form-label"></label>
+                    <input asp-for="DataDocumento" type="date" class="form-control"
+                           value="@Model.DataDocumento?.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="DataDocumento" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="DocumentoACriar" class="form-label"></label>
+                    <select asp-for="DocumentoACriar" class="form-select">
+                        <option value="">Selecione...</option>
+                        <option value="Ordem de Pagamento">Ordem de Pagamento</option>
+                        <option value="Nota de Lançamento">Nota de Lançamento</option>
+                        <option value="Fatura Fornecedor">Fatura Fornecedor</option>
+                    </select>
+                    <span asp-validation-for="DocumentoACriar" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="FornecedorBcId" class="form-label"></label>
+                    <input asp-for="FornecedorBcId" class="form-control" />
+                    <span asp-validation-for="FornecedorBcId" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="FornecedorNome" class="form-label"></label>
+                    <input asp-for="FornecedorNome" class="form-control" />
+                    <span asp-validation-for="FornecedorNome" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="Comprador" class="form-label"></label>
+                    <input asp-for="Comprador" class="form-control" />
+                    <span asp-validation-for="Comprador" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="Aprovador" class="form-label"></label>
+                    <input asp-for="Aprovador" class="form-control" />
+                    <span asp-validation-for="Aprovador" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="LocalLivre" class="form-label"></label>
+                    <input asp-for="LocalLivre" class="form-control" />
+                    <span asp-validation-for="LocalLivre" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="EmpresaNome" class="form-label"></label>
+                    <input asp-for="EmpresaNome" class="form-control" />
+                    <span asp-validation-for="EmpresaNome" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="ValorTotal" class="form-label"></label>
+                    <input asp-for="ValorTotal" type="number" step="0.01" class="form-control" id="valorTotal" />
+                    <span asp-validation-for="ValorTotal" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="Estado" class="form-label"></label>
+                    <select asp-for="Estado" class="form-select">
+                        <option value="Pendente">Pendente</option>
+                        <option value="Em Análise">Em Análise</option>
+                        <option value="Aprovado">Aprovado</option>
+                        <option value="Rejeitado">Rejeitado</option>
+                    </select>
+                    <span asp-validation-for="Estado" class="text-danger"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Observacoes" class="form-label"></label>
+                    <textarea asp-for="Observacoes" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Observacoes" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dimensões Card -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-diagram-3"></i> Dimensões</h5>
+            <button type="button" class="btn btn-sm btn-light" id="addDimensaoBtn">
+                <i class="bi bi-plus"></i> Adicionar Dimensão
+            </button>
+        </div>
+        <div class="card-body">
+            <div id="dimensoesContainer">
+                @if (Model.Dimensoes != null && Model.Dimensoes.Any())
+                {
+                    var index = 0;
+                    foreach (var dimensao in Model.Dimensoes.OrderBy(d => d.Linha))
+                    {
+                        <div class="dimensao-row card mb-2" data-index="@index">
+                            <div class="card-body">
+                                <div class="row g-2">
+                                    <input type="hidden" name="Dimensoes[@index].IdApprovalHub" value="@Model.IdApprovalHub" />
+                                    <input type="hidden" name="Dimensoes[@index].Linha" value="@dimensao.Linha" />
+
+                                    <div class="col-md-3">
+                                        <label class="form-label">Tipo</label>
+                                        <select name="Dimensoes[@index].Tipo" class="form-select form-select-sm">
+                                            <option value="CentroCusto" selected="@(dimensao.Tipo == "CentroCusto")">Centro de Custo</option>
+                                            <option value="Cliente" selected="@(dimensao.Tipo == "Cliente")">Cliente</option>
+                                            <option value="Produto" selected="@(dimensao.Tipo == "Produto")">Produto</option>
+                                            <option value="Marca" selected="@(dimensao.Tipo == "Marca")">Marca</option>
+                                            <option value="Mercado" selected="@(dimensao.Tipo == "Mercado")">Mercado</option>
+                                            <option value="Projeto" selected="@(dimensao.Tipo == "Projeto")">Projeto</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Código</label>
+                                        <input type="text" name="Dimensoes[@index].CodDimensao" class="form-control form-control-sm" value="@dimensao.CodDimensao" />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Nome</label>
+                                        <input type="text" name="Dimensoes[@index].NomeDimensao" class="form-control form-control-sm" value="@dimensao.NomeDimensao" />
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Percentagem</label>
+                                        <input type="number" name="Dimensoes[@index].Percentagem" class="form-control form-control-sm" step="0.01" value="@dimensao.Percentagem" />
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Valor</label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="number" name="Dimensoes[@index].Valor" class="form-control" step="0.01" value="@dimensao.Valor" />
+                                            <button type="button" class="btn btn-danger btn-sm removeDimensaoBtn">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        index++;
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Anexos Card -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="bi bi-paperclip"></i> Anexos</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Anexos != null && Model.Anexos.Any())
+            {
+                <div class="mb-3">
+                    <h6>Anexos Existentes:</h6>
+                    <div class="list-group">
+                        @foreach (var anexo in Model.Anexos)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-file-earmark"></i> @anexo.NomeFicheiro
+                                    <small class="text-muted">(@anexo.TamanhoBytes bytes)</small>
+                                </div>
+                                <div>
+                                    <a asp-action="DownloadAnexo" asp-route-id="@anexo.IdAnexo" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger deleteAnexoBtn" data-id="@anexo.IdAnexo">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="mb-3">
+                <label for="files" class="form-label">Adicionar Novos Ficheiros</label>
+                <input type="file" class="form-control" id="files" name="files" multiple>
+                <small class="form-text text-muted">Pode selecionar múltiplos ficheiros</small>
+            </div>
+            <div id="filesList"></div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="card">
+        <div class="card-body">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-save"></i> Guardar Alterações
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/approval-form.js"></script>
+}
