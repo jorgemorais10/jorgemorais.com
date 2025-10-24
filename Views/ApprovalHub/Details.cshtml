@@ -99,44 +99,22 @@
 
 <!-- Dimensões -->
 <div class="card mb-4">
-    <div class="card-header bg-info text-white">
-        <h5 class="mb-0"><i class="bi bi-diagram-3"></i> Dimensões</h5>
-    </div>
-    <div class="card-body">
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-diagram-3"></i> Dimensões por Produto</h5>
         @if (Model.Dimensoes != null && Model.Dimensoes.Any())
         {
-            <div class="table-responsive">
-                <table class="table table-sm table-bordered">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Linha</th>
-                            <th>Tipo</th>
-                            <th>Código</th>
-                            <th>Nome</th>
-                            <th class="text-end">Percentagem</th>
-                            <th class="text-end">Valor</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var dimensao in Model.Dimensoes.OrderBy(d => d.Linha))
-                        {
-                            <tr>
-                                <td>@dimensao.Linha</td>
-                                <td><span class="badge bg-secondary">@dimensao.Tipo</span></td>
-                                <td>@dimensao.CodDimensao</td>
-                                <td>@dimensao.NomeDimensao</td>
-                                <td class="text-end">@dimensao.Percentagem?.ToString("N2")%</td>
-                                <td class="text-end">@dimensao.Valor?.ToString("C2")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+            <div>
+                <button type="button" class="btn btn-sm btn-light" id="expandAllDimensoes">
+                    <i class="bi bi-arrows-expand"></i> Expandir Todas
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-light" id="collapseAllDimensoes">
+                    <i class="bi bi-arrows-collapse"></i> Colapsar Todas
+                </button>
             </div>
         }
-        else
-        {
-            <p class="text-muted mb-0"><i class="bi bi-info-circle"></i> Nenhuma dimensão associada.</p>
-        }
+    </div>
+    <div class="card-body">
+        <partial name="_DimensoesDetailsPartial" model="Model.Dimensoes" />
     </div>
 </div>
 
@@ -202,4 +180,8 @@
         }
         return $"{len:0.##} {sizes[order]}";
     }
+}
+
+@section Scripts {
+    <script src="~/js/dimensoes.js"></script>
 }

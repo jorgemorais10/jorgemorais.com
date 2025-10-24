@@ -1,0 +1,263 @@
+@model List<hub.Models.IdsDimensao>
+
+@if (Model != null && Model.Any())
+{
+    <div class="accordion" id="dimensoesAccordion">
+        @foreach (var dimensao in Model.OrderBy(d => d.Linha))
+        {
+            var collapseId = $"dimensaoCollapse{dimensao.Id}";
+            var headingId = $"dimensaoHeading{dimensao.Id}";
+
+            <div class="card mb-2 dimensao-card">
+                <div class="card-header p-0" id="@headingId">
+                    <button class="btn btn-link text-decoration-none w-100 text-start collapsed p-3"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#@collapseId"
+                            aria-expanded="false"
+                            aria-controls="@collapseId">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">
+                                    <i class="bi bi-box-seam text-primary"></i>
+                                    <strong>@dimensao.DisplayName</strong>
+                                </h6>
+                                @if (!string.IsNullOrWhiteSpace(dimensao.ProdutoCod))
+                                {
+                                    <small class="text-muted">Código: @dimensao.ProdutoCod</small>
+                                }
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                @if (dimensao.ProdutoValor.HasValue)
+                                {
+                                    <span class="badge bg-success">@dimensao.ProdutoValor.Value.ToString("C2")</span>
+                                }
+                                <i class="bi bi-chevron-down accordion-icon-small"></i>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+
+                <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId" data-bs-parent="#dimensoesAccordion">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Produto -->
+                            @if (!string.IsNullOrWhiteSpace(dimensao.ProdutoCod) || !string.IsNullOrWhiteSpace(dimensao.ProdutoNome))
+                            {
+                                <div class="col-md-6">
+                                    <div class="dimension-group">
+                                        <div class="dimension-header">
+                                            <i class="bi bi-box text-primary"></i>
+                                            <strong>Produto</strong>
+                                        </div>
+                                        <div class="dimension-content">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Código:</small><br>
+                                                    <strong>@dimensao.ProdutoCod</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Nome:</small><br>
+                                                    <strong>@dimensao.ProdutoNome</strong>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Percentagem:</small><br>
+                                                    <strong>@dimensao.ProdutoPercentagem?.ToString("N2")%</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Valor:</small><br>
+                                                    <strong class="text-success">@dimensao.ProdutoValor?.ToString("C2")</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Centro de Custo -->
+                            @if (!string.IsNullOrWhiteSpace(dimensao.CentroCustoCod) || !string.IsNullOrWhiteSpace(dimensao.CentroCustoNome))
+                            {
+                                <div class="col-md-6">
+                                    <div class="dimension-group">
+                                        <div class="dimension-header">
+                                            <i class="bi bi-building text-info"></i>
+                                            <strong>Centro de Custo</strong>
+                                        </div>
+                                        <div class="dimension-content">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Código:</small><br>
+                                                    <strong>@dimensao.CentroCustoCod</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Nome:</small><br>
+                                                    <strong>@dimensao.CentroCustoNome</strong>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Percentagem:</small><br>
+                                                    <strong>@dimensao.CentroCustoPercentagem?.ToString("N2")%</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Valor:</small><br>
+                                                    <strong class="text-success">@dimensao.CentroCustoValor?.ToString("C2")</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Cliente -->
+                            @if (!string.IsNullOrWhiteSpace(dimensao.ClienteCod) || !string.IsNullOrWhiteSpace(dimensao.ClienteNome))
+                            {
+                                <div class="col-md-6">
+                                    <div class="dimension-group">
+                                        <div class="dimension-header">
+                                            <i class="bi bi-person-badge text-success"></i>
+                                            <strong>Cliente</strong>
+                                        </div>
+                                        <div class="dimension-content">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Código:</small><br>
+                                                    <strong>@dimensao.ClienteCod</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Nome:</small><br>
+                                                    <strong>@dimensao.ClienteNome</strong>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Percentagem:</small><br>
+                                                    <strong>@dimensao.ClientePercentagem?.ToString("N2")%</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Valor:</small><br>
+                                                    <strong class="text-success">@dimensao.ClienteValor?.ToString("C2")</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Marca -->
+                            @if (!string.IsNullOrWhiteSpace(dimensao.MarcaCod) || !string.IsNullOrWhiteSpace(dimensao.MarcaNome))
+                            {
+                                <div class="col-md-6">
+                                    <div class="dimension-group">
+                                        <div class="dimension-header">
+                                            <i class="bi bi-award text-warning"></i>
+                                            <strong>Marca</strong>
+                                        </div>
+                                        <div class="dimension-content">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Código:</small><br>
+                                                    <strong>@dimensao.MarcaCod</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Nome:</small><br>
+                                                    <strong>@dimensao.MarcaNome</strong>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Percentagem:</small><br>
+                                                    <strong>@dimensao.MarcaPercentagem?.ToString("N2")%</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Valor:</small><br>
+                                                    <strong class="text-success">@dimensao.MarcaValor?.ToString("C2")</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Mercado -->
+                            @if (!string.IsNullOrWhiteSpace(dimensao.MercadoCod) || !string.IsNullOrWhiteSpace(dimensao.MercadoNome))
+                            {
+                                <div class="col-md-6">
+                                    <div class="dimension-group">
+                                        <div class="dimension-header">
+                                            <i class="bi bi-globe text-danger"></i>
+                                            <strong>Mercado</strong>
+                                        </div>
+                                        <div class="dimension-content">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Código:</small><br>
+                                                    <strong>@dimensao.MercadoCod</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Nome:</small><br>
+                                                    <strong>@dimensao.MercadoNome</strong>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Percentagem:</small><br>
+                                                    <strong>@dimensao.MercadoPercentagem?.ToString("N2")%</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Valor:</small><br>
+                                                    <strong class="text-success">@dimensao.MercadoValor?.ToString("C2")</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Projeto -->
+                            @if (!string.IsNullOrWhiteSpace(dimensao.ProjetoCod) || !string.IsNullOrWhiteSpace(dimensao.ProjetoNome))
+                            {
+                                <div class="col-md-6">
+                                    <div class="dimension-group">
+                                        <div class="dimension-header">
+                                            <i class="bi bi-kanban text-secondary"></i>
+                                            <strong>Projeto</strong>
+                                        </div>
+                                        <div class="dimension-content">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Código:</small><br>
+                                                    <strong>@dimensao.ProjetoCod</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Nome:</small><br>
+                                                    <strong>@dimensao.ProjetoNome</strong>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Percentagem:</small><br>
+                                                    <strong>@dimensao.ProjetoPercentagem?.ToString("N2")%</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Valor:</small><br>
+                                                    <strong class="text-success">@dimensao.ProjetoValor?.ToString("C2")</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p class="text-muted mb-0"><i class="bi bi-info-circle"></i> Nenhuma dimensão associada.</p>
+}

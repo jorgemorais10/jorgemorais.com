@@ -277,21 +277,64 @@ public class ApprovalHubService : IApprovalHubService
 
         const string sql = @"
             INSERT INTO aprov.ids_dimensoes (
-                id_approval_hub, Linha, tipo, cod_dimensao, nome_dimensao, percentagem, valor
+                id_approval_hub, linha,
+                produto_cod, produto_nome, produto_percentagem, produto_valor,
+                centro_custo_cod, centro_custo_nome, centro_custo_percentagem, centro_custo_valor,
+                cliente_cod, cliente_nome, cliente_percentagem, cliente_valor,
+                marca_cod, marca_nome, marca_percentagem, marca_valor,
+                mercado_cod, mercado_nome, mercado_percentagem, mercado_valor,
+                projeto_cod, projeto_nome, projeto_percentagem, projeto_valor
             )
             OUTPUT INSERTED.id
             VALUES (
-                @IdApprovalHub, @Linha, @Tipo, @CodDimensao, @NomeDimensao, @Percentagem, @Valor
+                @IdApprovalHub, @Linha,
+                @ProdutoCod, @ProdutoNome, @ProdutoPercentagem, @ProdutoValor,
+                @CentroCustoCod, @CentroCustoNome, @CentroCustoPercentagem, @CentroCustoValor,
+                @ClienteCod, @ClienteNome, @ClientePercentagem, @ClienteValor,
+                @MarcaCod, @MarcaNome, @MarcaPercentagem, @MarcaValor,
+                @MercadoCod, @MercadoNome, @MercadoPercentagem, @MercadoValor,
+                @ProjetoCod, @ProjetoNome, @ProjetoPercentagem, @ProjetoValor
             )";
 
         using var cmd = new SqlCommand(sql, conn);
         cmd.Parameters.AddWithValue("@IdApprovalHub", dimensao.IdApprovalHub);
         cmd.Parameters.AddWithValue("@Linha", dimensao.Linha);
-        cmd.Parameters.AddWithValue("@Tipo", dimensao.Tipo ?? (object)DBNull.Value);
-        cmd.Parameters.AddWithValue("@CodDimensao", dimensao.CodDimensao ?? (object)DBNull.Value);
-        cmd.Parameters.AddWithValue("@NomeDimensao", dimensao.NomeDimensao ?? (object)DBNull.Value);
-        cmd.Parameters.AddWithValue("@Percentagem", dimensao.Percentagem ?? (object)DBNull.Value);
-        cmd.Parameters.AddWithValue("@Valor", dimensao.Valor ?? (object)DBNull.Value);
+
+        // Produto
+        cmd.Parameters.AddWithValue("@ProdutoCod", dimensao.ProdutoCod ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@ProdutoNome", dimensao.ProdutoNome ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@ProdutoPercentagem", dimensao.ProdutoPercentagem ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@ProdutoValor", dimensao.ProdutoValor ?? (object)DBNull.Value);
+
+        // Centro de Custo
+        cmd.Parameters.AddWithValue("@CentroCustoCod", dimensao.CentroCustoCod ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@CentroCustoNome", dimensao.CentroCustoNome ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@CentroCustoPercentagem", dimensao.CentroCustoPercentagem ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@CentroCustoValor", dimensao.CentroCustoValor ?? (object)DBNull.Value);
+
+        // Cliente
+        cmd.Parameters.AddWithValue("@ClienteCod", dimensao.ClienteCod ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@ClienteNome", dimensao.ClienteNome ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@ClientePercentagem", dimensao.ClientePercentagem ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@ClienteValor", dimensao.ClienteValor ?? (object)DBNull.Value);
+
+        // Marca
+        cmd.Parameters.AddWithValue("@MarcaCod", dimensao.MarcaCod ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@MarcaNome", dimensao.MarcaNome ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@MarcaPercentagem", dimensao.MarcaPercentagem ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@MarcaValor", dimensao.MarcaValor ?? (object)DBNull.Value);
+
+        // Mercado
+        cmd.Parameters.AddWithValue("@MercadoCod", dimensao.MercadoCod ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@MercadoNome", dimensao.MercadoNome ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@MercadoPercentagem", dimensao.MercadoPercentagem ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@MercadoValor", dimensao.MercadoValor ?? (object)DBNull.Value);
+
+        // Projeto
+        cmd.Parameters.AddWithValue("@ProjetoCod", dimensao.ProjetoCod ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@ProjetoNome", dimensao.ProjetoNome ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@ProjetoPercentagem", dimensao.ProjetoPercentagem ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@ProjetoValor", dimensao.ProjetoValor ?? (object)DBNull.Value);
 
         var result = await cmd.ExecuteScalarAsync(ct);
         return result != null ? Convert.ToInt32(result) : 0;
@@ -302,10 +345,17 @@ public class ApprovalHubService : IApprovalHubService
         using var conn = await GetConnectionAsync(ct);
 
         const string sql = @"
-            SELECT id, id_approval_hub, Linha, tipo, cod_dimensao, nome_dimensao, percentagem, valor
+            SELECT
+                id, id_approval_hub, linha,
+                produto_cod, produto_nome, produto_percentagem, produto_valor,
+                centro_custo_cod, centro_custo_nome, centro_custo_percentagem, centro_custo_valor,
+                cliente_cod, cliente_nome, cliente_percentagem, cliente_valor,
+                marca_cod, marca_nome, marca_percentagem, marca_valor,
+                mercado_cod, mercado_nome, mercado_percentagem, mercado_valor,
+                projeto_cod, projeto_nome, projeto_percentagem, projeto_valor
             FROM aprov.ids_dimensoes
             WHERE id_approval_hub = @ApprovalHubId
-            ORDER BY Linha";
+            ORDER BY linha";
 
         var list = new List<IdsDimensao>();
 
@@ -516,12 +566,43 @@ public class ApprovalHubService : IApprovalHubService
         {
             Id = reader.GetInt32(reader.GetOrdinal("id")),
             IdApprovalHub = reader.GetInt32(reader.GetOrdinal("id_approval_hub")),
-            Linha = reader.GetInt32(reader.GetOrdinal("Linha")),
-            Tipo = reader.IsDBNull(reader.GetOrdinal("tipo")) ? null : reader.GetString(reader.GetOrdinal("tipo")),
-            CodDimensao = reader.IsDBNull(reader.GetOrdinal("cod_dimensao")) ? null : reader.GetString(reader.GetOrdinal("cod_dimensao")),
-            NomeDimensao = reader.IsDBNull(reader.GetOrdinal("nome_dimensao")) ? null : reader.GetString(reader.GetOrdinal("nome_dimensao")),
-            Percentagem = reader.IsDBNull(reader.GetOrdinal("percentagem")) ? null : reader.GetDecimal(reader.GetOrdinal("percentagem")),
-            Valor = reader.IsDBNull(reader.GetOrdinal("valor")) ? null : reader.GetDecimal(reader.GetOrdinal("valor"))
+            Linha = reader.GetInt32(reader.GetOrdinal("linha")),
+
+            // Produto
+            ProdutoCod = reader.IsDBNull(reader.GetOrdinal("produto_cod")) ? null : reader.GetString(reader.GetOrdinal("produto_cod")),
+            ProdutoNome = reader.IsDBNull(reader.GetOrdinal("produto_nome")) ? null : reader.GetString(reader.GetOrdinal("produto_nome")),
+            ProdutoPercentagem = reader.IsDBNull(reader.GetOrdinal("produto_percentagem")) ? null : reader.GetDecimal(reader.GetOrdinal("produto_percentagem")),
+            ProdutoValor = reader.IsDBNull(reader.GetOrdinal("produto_valor")) ? null : reader.GetDecimal(reader.GetOrdinal("produto_valor")),
+
+            // Centro de Custo
+            CentroCustoCod = reader.IsDBNull(reader.GetOrdinal("centro_custo_cod")) ? null : reader.GetString(reader.GetOrdinal("centro_custo_cod")),
+            CentroCustoNome = reader.IsDBNull(reader.GetOrdinal("centro_custo_nome")) ? null : reader.GetString(reader.GetOrdinal("centro_custo_nome")),
+            CentroCustoPercentagem = reader.IsDBNull(reader.GetOrdinal("centro_custo_percentagem")) ? null : reader.GetDecimal(reader.GetOrdinal("centro_custo_percentagem")),
+            CentroCustoValor = reader.IsDBNull(reader.GetOrdinal("centro_custo_valor")) ? null : reader.GetDecimal(reader.GetOrdinal("centro_custo_valor")),
+
+            // Cliente
+            ClienteCod = reader.IsDBNull(reader.GetOrdinal("cliente_cod")) ? null : reader.GetString(reader.GetOrdinal("cliente_cod")),
+            ClienteNome = reader.IsDBNull(reader.GetOrdinal("cliente_nome")) ? null : reader.GetString(reader.GetOrdinal("cliente_nome")),
+            ClientePercentagem = reader.IsDBNull(reader.GetOrdinal("cliente_percentagem")) ? null : reader.GetDecimal(reader.GetOrdinal("cliente_percentagem")),
+            ClienteValor = reader.IsDBNull(reader.GetOrdinal("cliente_valor")) ? null : reader.GetDecimal(reader.GetOrdinal("cliente_valor")),
+
+            // Marca
+            MarcaCod = reader.IsDBNull(reader.GetOrdinal("marca_cod")) ? null : reader.GetString(reader.GetOrdinal("marca_cod")),
+            MarcaNome = reader.IsDBNull(reader.GetOrdinal("marca_nome")) ? null : reader.GetString(reader.GetOrdinal("marca_nome")),
+            MarcaPercentagem = reader.IsDBNull(reader.GetOrdinal("marca_percentagem")) ? null : reader.GetDecimal(reader.GetOrdinal("marca_percentagem")),
+            MarcaValor = reader.IsDBNull(reader.GetOrdinal("marca_valor")) ? null : reader.GetDecimal(reader.GetOrdinal("marca_valor")),
+
+            // Mercado
+            MercadoCod = reader.IsDBNull(reader.GetOrdinal("mercado_cod")) ? null : reader.GetString(reader.GetOrdinal("mercado_cod")),
+            MercadoNome = reader.IsDBNull(reader.GetOrdinal("mercado_nome")) ? null : reader.GetString(reader.GetOrdinal("mercado_nome")),
+            MercadoPercentagem = reader.IsDBNull(reader.GetOrdinal("mercado_percentagem")) ? null : reader.GetDecimal(reader.GetOrdinal("mercado_percentagem")),
+            MercadoValor = reader.IsDBNull(reader.GetOrdinal("mercado_valor")) ? null : reader.GetDecimal(reader.GetOrdinal("mercado_valor")),
+
+            // Projeto
+            ProjetoCod = reader.IsDBNull(reader.GetOrdinal("projeto_cod")) ? null : reader.GetString(reader.GetOrdinal("projeto_cod")),
+            ProjetoNome = reader.IsDBNull(reader.GetOrdinal("projeto_nome")) ? null : reader.GetString(reader.GetOrdinal("projeto_nome")),
+            ProjetoPercentagem = reader.IsDBNull(reader.GetOrdinal("projeto_percentagem")) ? null : reader.GetDecimal(reader.GetOrdinal("projeto_percentagem")),
+            ProjetoValor = reader.IsDBNull(reader.GetOrdinal("projeto_valor")) ? null : reader.GetDecimal(reader.GetOrdinal("projeto_valor"))
         };
     }
 
