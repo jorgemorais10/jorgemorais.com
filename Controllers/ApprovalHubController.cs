@@ -1,5 +1,6 @@
 using hub.Models;
 using Hub.Services;
+using Hub.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hub.Controllers;
@@ -23,14 +24,42 @@ public class ApprovalHubController : Controller
         try
         {
             var approvals = await _approvalService.GetAllApprovalHubsAsync();
-            return View(approvals);
+            var viewModel = CreateGroupedViewModel(approvals);
+            return View(viewModel);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao carregar lista de aprovações");
             TempData["Error"] = "Erro ao carregar lista de aprovações: " + ex.Message;
-            return View(new List<ApprovalHub>());
+            return View(new ApprovalHubIndexViewModel());
         }
+    }
+
+    private ApprovalHubIndexViewModel CreateGroupedViewModel(
+        List<ApprovalHub> approvals,
+        string? fornecedor = null,
+        string? estado = null,
+        DateTime? dataInicio = null,
+        DateTime? dataFim = null)
+    {
+        var grupos = approvals
+            .GroupBy(a => a.Aprovador ?? "Sem Aprovador")
+            .Select(g => new ApprovalHubGroupedViewModel
+            {
+                Aprovador = g.Key,
+                Pedidos = g.OrderByDescending(p => p.CriadoEm).ToList()
+            })
+            .OrderBy(g => g.Aprovador)
+            .ToList();
+
+        return new ApprovalHubIndexViewModel
+        {
+            GruposPorAprovador = grupos,
+            Fornecedor = fornecedor,
+            Estado = estado,
+            DataInicio = dataInicio,
+            DataFim = dataFim
+        };
     }
 
     // GET: ApprovalHub/Details/5
@@ -321,18 +350,15 @@ public class ApprovalHubController : Controller
         try
         {
             var approvals = await _approvalService.SearchApprovalHubsAsync(fornecedor, estado, dataInicio, dataFim);
-            ViewBag.Fornecedor = fornecedor;
-            ViewBag.Estado = estado;
-            ViewBag.DataInicio = dataInicio;
-            ViewBag.DataFim = dataFim;
+            var viewModel = CreateGroupedViewModel(approvals, fornecedor, estado, dataInicio, dataFim);
 
-            return View("Index", approvals);
+            return View("Index", viewModel);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao pesquisar aprovações");
             TempData["Error"] = "Erro ao pesquisar: " + ex.Message;
-            return View("Index", new List<ApprovalHub>());
+            return View("Index", new ApprovalHubIndexViewModel());
         }
     }
 

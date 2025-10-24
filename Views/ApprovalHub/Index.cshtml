@@ -1,4 +1,4 @@
-@model List<ApprovalHub>
+@model Hub.ViewModels.ApprovalHubIndexViewModel
 
 @{
     ViewData["Title"] = "Pedidos de Aprovação";
@@ -9,129 +9,340 @@
         <h1><i class="bi bi-clipboard-check"></i> Pedidos de Aprovação</h1>
     </div>
     <div class="col-auto">
-        <a asp-action="Create" class="btn btn-primary">
+        <a asp-action="Create" class="btn btn-primary btn-lg">
             <i class="bi bi-plus-circle"></i> Novo Pedido
         </a>
     </div>
 </div>
 
-<!-- Search Form -->
-<div class="card mb-4">
-    <div class="card-header bg-light">
-        <h5 class="mb-0">
-            <i class="bi bi-search"></i> Pesquisar
-        </h5>
-    </div>
-    <div class="card-body">
-        <form asp-action="Search" method="get">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Fornecedor</label>
-                    <input type="text" class="form-control" name="fornecedor" value="@ViewBag.Fornecedor" placeholder="Nome do fornecedor">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Estado</label>
-                    <select class="form-select" name="estado">
-                        <option value="">Todos</option>
-                        <option value="Pendente">Pendente</option>
-                        <option value="Aprovado">Aprovado</option>
-                        <option value="Rejeitado">Rejeitado</option>
-                        <option value="Em Análise">Em Análise</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Data Início</label>
-                    <input type="date" class="form-control" name="dataInicio" value="@ViewBag.DataInicio">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Data Fim</label>
-                    <input type="date" class="form-control" name="dataFim" value="@ViewBag.DataFim">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">&nbsp;</label>
-                    <div class="d-grid gap-2 d-md-block">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-search"></i> Pesquisar
-                        </button>
-                        <a asp-action="Index" class="btn btn-secondary">
-                            <i class="bi bi-x-circle"></i> Limpar
-                        </a>
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-1">Total Pedidos</h6>
+                        <h2 class="mb-0">@Model.TotalPedidos</h2>
+                    </div>
+                    <div class="fs-1">
+                        <i class="bi bi-file-earmark-text"></i>
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-1">Valor Total</h6>
+                        <h2 class="mb-0">@Model.ValorTotalGeral.ToString("C2")</h2>
+                    </div>
+                    <div class="fs-1">
+                        <i class="bi bi-currency-euro"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-1">Aprovadores</h6>
+                        <h2 class="mb-0">@Model.GruposPorAprovador.Count</h2>
+                    </div>
+                    <div class="fs-1">
+                        <i class="bi bi-people"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-1">Pendentes</h6>
+                        <h2 class="mb-0">@Model.GruposPorAprovador.Sum(g => g.PedidosPendentes)</h2>
+                    </div>
+                    <div class="fs-1">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Results Table -->
-<div class="card">
-    <div class="card-body">
-        @if (Model.Any())
+<!-- Search Form -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-gradient-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-search"></i> Pesquisar Pedidos
+            </h5>
+            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse">
+                <i class="bi bi-funnel"></i> Filtros
+            </button>
+        </div>
+    </div>
+    <div class="collapse show" id="searchCollapse">
+        <div class="card-body">
+            <form asp-action="Search" method="get">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Fornecedor</label>
+                        <input type="text" class="form-control" name="fornecedor" value="@Model.Fornecedor" placeholder="Nome do fornecedor">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" name="estado">
+                            <option value="">Todos</option>
+                            <option value="Pendente" selected="@(Model.Estado == "Pendente")">Pendente</option>
+                            <option value="Aprovado" selected="@(Model.Estado == "Aprovado")">Aprovado</option>
+                            <option value="Rejeitado" selected="@(Model.Estado == "Rejeitado")">Rejeitado</option>
+                            <option value="Em Análise" selected="@(Model.Estado == "Em Análise")">Em Análise</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Data Início</label>
+                        <input type="date" class="form-control" name="dataInicio" value="@Model.DataInicio?.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Data Fim</label>
+                        <input type="date" class="form-control" name="dataFim" value="@Model.DataFim?.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Pesquisar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Limpar Filtros
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Expand/Collapse All Button -->
+@if (Model.GruposPorAprovador.Any())
+{
+    <div class="mb-3">
+        <button type="button" class="btn btn-outline-primary btn-sm" id="expandAllBtn">
+            <i class="bi bi-arrows-expand"></i> Expandir Todos
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="collapseAllBtn">
+            <i class="bi bi-arrows-collapse"></i> Colapsar Todos
+        </button>
+    </div>
+}
+
+<!-- Grouped Results by Aprovador -->
+@if (Model.GruposPorAprovador.Any())
+{
+    <div class="accordion" id="aprovadoresAccordion">
+        @for (int i = 0; i < Model.GruposPorAprovador.Count; i++)
         {
-            <div class="table-responsive">
-                <table class="table table-hover table-striped align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Nº Fatura</th>
-                            <th>Fornecedor</th>
-                            <th>Data Documento</th>
-                            <th>Valor Total</th>
-                            <th>Estado</th>
-                            <th>Criado Por</th>
-                            <th>Criado Em</th>
-                            <th class="text-end">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td>@item.IdApprovalHub</td>
-                                <td>@item.NumFatura</td>
-                                <td>@item.FornecedorNome</td>
-                                <td>@item.DataDocumento?.ToString("dd/MM/yyyy")</td>
-                                <td class="text-end">@item.ValorTotal.ToString("C2")</td>
-                                <td>
-                                    <span class="badge @GetEstadoBadgeClass(item.Estado)">
-                                        @item.Estado
-                                    </span>
-                                </td>
-                                <td>@item.CriadoPor</td>
-                                <td>@item.CriadoEm?.ToString("dd/MM/yyyy HH:mm")</td>
-                                <td class="text-end">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <a asp-action="Details" asp-route-id="@item.IdApprovalHub"
-                                           class="btn btn-info" title="Ver Detalhes">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a asp-action="Edit" asp-route-id="@item.IdApprovalHub"
-                                           class="btn btn-warning" title="Editar">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.IdApprovalHub"
-                                           class="btn btn-danger" title="Eliminar">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+            var grupo = Model.GruposPorAprovador[i];
+            var collapseId = $"collapse{i}";
+            var headingId = $"heading{i}";
+
+            <div class="card mb-3 shadow-sm approval-group-card">
+                <div class="card-header" id="@headingId">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-link text-decoration-none flex-grow-1 text-start collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#@collapseId"
+                                aria-expanded="false"
+                                aria-controls="@collapseId">
+                            <div class="d-flex justify-content-between align-items-center w-100">
+                                <div>
+                                    <h5 class="mb-1">
+                                        <i class="bi bi-person-circle text-primary"></i>
+                                        <strong>@grupo.Aprovador</strong>
+                                    </h5>
+                                    <small class="text-muted">
+                                        @grupo.TotalPedidos pedido@(grupo.TotalPedidos != 1 ? "s" : "") •
+                                        <strong class="text-success">@grupo.ValorTotal.ToString("C2")</strong>
+                                    </small>
+                                </div>
+                                <div class="d-flex gap-2 align-items-center me-3">
+                                    @if (grupo.PedidosPendentes > 0)
+                                    {
+                                        <span class="badge bg-warning text-dark" title="Pendentes">
+                                            <i class="bi bi-hourglass"></i> @grupo.PedidosPendentes
+                                        </span>
+                                    }
+                                    @if (grupo.PedidosEmAnalise > 0)
+                                    {
+                                        <span class="badge bg-info" title="Em Análise">
+                                            <i class="bi bi-eye"></i> @grupo.PedidosEmAnalise
+                                        </span>
+                                    }
+                                    @if (grupo.PedidosAprovados > 0)
+                                    {
+                                        <span class="badge bg-success" title="Aprovados">
+                                            <i class="bi bi-check-circle"></i> @grupo.PedidosAprovados
+                                        </span>
+                                    }
+                                    @if (grupo.PedidosRejeitados > 0)
+                                    {
+                                        <span class="badge bg-danger" title="Rejeitados">
+                                            <i class="bi bi-x-circle"></i> @grupo.PedidosRejeitados
+                                        </span>
+                                    }
+                                    <i class="bi bi-chevron-down accordion-icon"></i>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId" data-bs-parent="#aprovadoresAccordion">
+                    <div class="card-body p-0">
+                        <!-- Statistics Bar -->
+                        <div class="bg-light p-3 border-bottom">
+                            <div class="row text-center">
+                                <div class="col-3">
+                                    <div class="stat-item">
+                                        <i class="bi bi-file-earmark-text text-primary fs-4"></i>
+                                        <div class="fw-bold">@grupo.TotalPedidos</div>
+                                        <small class="text-muted">Total</small>
                                     </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-            <div class="mt-3">
-                <p class="text-muted">Total de registos: <strong>@Model.Count</strong></p>
-            </div>
-        }
-        else
-        {
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle"></i> Nenhum pedido de aprovação encontrado.
+                                </div>
+                                <div class="col-3">
+                                    <div class="stat-item">
+                                        <i class="bi bi-hourglass-split text-warning fs-4"></i>
+                                        <div class="fw-bold">@grupo.PedidosPendentes</div>
+                                        <small class="text-muted">Pendentes</small>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="stat-item">
+                                        <i class="bi bi-check-circle text-success fs-4"></i>
+                                        <div class="fw-bold">@grupo.PedidosAprovados</div>
+                                        <small class="text-muted">Aprovados</small>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="stat-item">
+                                        <i class="bi bi-x-circle text-danger fs-4"></i>
+                                        <div class="fw-bold">@grupo.PedidosRejeitados</div>
+                                        <small class="text-muted">Rejeitados</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 60px;">ID</th>
+                                        <th>Nº Fatura</th>
+                                        <th>Fornecedor</th>
+                                        <th>Data</th>
+                                        <th class="text-end">Valor</th>
+                                        <th>Estado</th>
+                                        <th>Criado Em</th>
+                                        <th class="text-end" style="width: 150px;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var pedido in grupo.Pedidos)
+                                    {
+                                        <tr class="approval-row">
+                                            <td><strong>#@pedido.IdApprovalHub</strong></td>
+                                            <td>
+                                                <strong>@pedido.NumFatura</strong><br>
+                                                <small class="text-muted">@pedido.TipoFatura</small>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-building me-2 text-muted"></i>
+                                                    <div>
+                                                        <div>@pedido.FornecedorNome</div>
+                                                        @if (!string.IsNullOrWhiteSpace(pedido.FornecedorBcId))
+                                                        {
+                                                            <small class="text-muted">ID: @pedido.FornecedorBcId</small>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>@pedido.DataDocumento?.ToString("dd/MM/yyyy")</td>
+                                            <td class="text-end">
+                                                <strong class="text-success">@pedido.ValorTotal.ToString("C2")</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge @GetEstadoBadgeClass(pedido.Estado)">
+                                                    @GetEstadoIcon(pedido.Estado) @pedido.Estado
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small>
+                                                    @pedido.CriadoEm?.ToString("dd/MM/yyyy")<br>
+                                                    <span class="text-muted">@pedido.CriadoEm?.ToString("HH:mm")</span>
+                                                </small>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a asp-action="Details" asp-route-id="@pedido.IdApprovalHub"
+                                                       class="btn btn-outline-info" title="Ver Detalhes">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@pedido.IdApprovalHub"
+                                                       class="btn btn-outline-warning" title="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@pedido.IdApprovalHub"
+                                                       class="btn btn-outline-danger" title="Eliminar">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         }
     </div>
-</div>
+}
+else
+{
+    <div class="alert alert-info shadow-sm">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-info-circle fs-3 me-3"></i>
+            <div>
+                <h5 class="alert-heading mb-1">Nenhum pedido encontrado</h5>
+                <p class="mb-0">Não existem pedidos de aprovação que correspondam aos critérios de pesquisa.</p>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/approval-index.js"></script>
+}
 
 @functions {
     string GetEstadoBadgeClass(string? estado)
@@ -143,6 +354,18 @@
             "Rejeitado" => "bg-danger",
             "Em Análise" => "bg-info",
             _ => "bg-secondary"
+        };
+    }
+
+    string GetEstadoIcon(string? estado)
+    {
+        return estado switch
+        {
+            "Pendente" => "<i class='bi bi-hourglass'></i>",
+            "Aprovado" => "<i class='bi bi-check-circle'></i>",
+            "Rejeitado" => "<i class='bi bi-x-circle'></i>",
+            "Em Análise" => "<i class='bi bi-eye'></i>",
+            _ => "<i class='bi bi-question-circle'></i>"
         };
     }
 }
